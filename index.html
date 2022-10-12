@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<!--
+
+index.html
+
+Copyright (C) 2022 Tpaefawzen
+
+This file is part of dis.web.
+
+dis.web is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+dis.web is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with dis.web. If not, see <https://www.gnu.org/licenses/>.
+
+-->
+
+<title>dis.web</title>
+<script type="module" src="./js/main.js"></script>
+
+<body>
+<header>
+	<h1>dis.web: Dis interpreter</h1>
+</header>
+
+<div class="generate url">
+	<button type="button" id="genurl">Link to this program</button>
+</div> <!-- class="generate url" -->
+
+<div class="source area">
+	<label for="source">Program source (<span id="source-length">0</span>)</label>
+	<textarea id="source"></textarea>
+</div> <!-- class="source area" -->
+	
+<div class="input area">
+	<label for="input-enc">Encoding of input</label>
+	<select id="input-enc">
+		<option value="utf-8">UTF-8
+		<option value="base64">Base64
+		<option value="base16">Base16
+	</select>
+	
+	<label for="input">Input for program (<span id="input-length">0</span>)</label>
+	<textarea id="input"></textarea>
+	
+</div> <!-- class="input area" -->
+
+<div class="controller">
+	<button type="button" id="start">Start</button>
+	<button type="button" id="resume" disabled>Resume</button>
+	<button type="button" id="stop" disabled>Stop</button>
+
+	<p>Steps: <span id="step">0</span>K</p>
+</div> <!-- class="controller" -->
+
+<div class="output area">
+	<label for="output-enc">Encoding of output</label>
+	<select id="output-enc">
+		<option value="utf-8">UTF-8
+		<option value="base64">Base64
+		<option value="base16">Base16
+	</select>
+	
+	<label for="output">Program output (<span id="output-length">0</span>)</label>
+	<textarea id="output"></textarea>
+
+	<button type="button" id="clear-output">Clear output</button>
+	
+	<label for="stderr">Program stderr</label>
+	<textarea id="stderr"></textarea>
+</div> <!-- class="output area" -->
+
+<footer>
+<small>
+<p>Copyright (C) 2022 <a href="https://github.com/Tpaefawzen">Tpaefawzen</a>
+<p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+<p>You should have received a copy of the GNU Affero General Public License along with this program. If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
