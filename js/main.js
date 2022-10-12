@@ -63,20 +63,18 @@ const generateUrl=()=>{
     query.set(queryName,val);
   });
   url2copy.hash=query;
-  try{
-    await navigator.clipboard.writeText(url2copy.toString());
+  navigator.clipboard.writeText(url2copy.toString()).then(()=>{
     const e=document.getElementById('genurl');
     const oldText=e.textContent;
     e.textContent="copied!";
     setTimeout(()=>e.textContent=oldText,2000);
-  }catch(_){
-    console.error(_);
-    writeError(`URL to copy: ${url2copy.toString()}`);
+  }).catch((_)=>{
+    writeError(url2copy.toString());
     const e=document.getElementById('genurl');
     const oldText=e.textContent;
     e.textContent="see Program stderr";
     setTimeout(()=>e.textContent=oldText,2000);
-  };
+  });
 };
 window.addEventListener("DOMContentLoaded",()=>{
   document.getElementById('genurl').addEventListener("click",generateUrl);
