@@ -13,6 +13,10 @@ To make it easier to demonstrate how a Dis program works. I hope you are here fo
   - When output, trying to output 59048 terminates the program. Otherwise, when you try to output a value larger than 255, the value is divided by 256 first, then the modulus of the result is output as an octet.
 - You can share the direct link to a program with input.
 
+# References: Resource for Dis language
+1. [Mirror of the Dis '98 specification including original interpreter](https://mirrors.talideon.com/articles/malbolge/dis.html)
+2. [Article on Esolang: the esoteric programming language wiki](https://esolangs.org/wiki/Dis)
+
 # License
 dis.web is distributed under the GNU AGPL v3.0, and this documentation is distributed under the GNU FDL v1.0.
 
