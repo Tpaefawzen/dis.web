@@ -64,7 +64,7 @@ const generateUrl=()=>{
   });
   url2copy.hash=query;
   try{
-    navigator.clipboard.writeText(url2copy.toString());
+    await navigator.clipboard.writeText(url2copy.toString());
     const e=document.getElementById('genurl');
     const oldText=e.textContent;
     e.textContent="copied!";
