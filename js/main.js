@@ -75,6 +75,11 @@ const generateUrl=()=>{
     e.textContent="see Program stderr";
     setTimeout(()=>e.textContent=oldText,2000);
   });
+  try{
+    location.replace(url2copy);
+  }catch(_){
+    // NOP
+  }
 };
 window.addEventListener("DOMContentLoaded",()=>{
   document.getElementById('genurl').addEventListener("click",generateUrl);
