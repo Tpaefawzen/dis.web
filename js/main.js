@@ -1,7 +1,7 @@
 /*
  * js/main.js
  *
- * Copyright (C) 2022 Tpaefawzen
+ * Copyright (C) 2022, 2023 Tpaefawzen
  *
  * This file is part of dis.web.
  * 
