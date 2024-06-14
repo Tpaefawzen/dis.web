@@ -22,8 +22,8 @@ class Base64Error extends Error{
   get name(){return "Base64Error"}
 }
 
-export const base64urlToBase64=(str)=>str.replaceAll("-","+").replaceAll("_","/");
-export const base64ToBase64url=(str)=>str.replaceAll("+","-").replaceAll("/","_");
+const base64urlToBase64=(str)=>str.replaceAll("-","+").replaceAll("_","/");
+const base64ToBase64url=(str)=>str.replaceAll("+","-").replaceAll("/","_");
 
 /**
  * @function decodeBase64
@@ -31,7 +31,7 @@ export const base64ToBase64url=(str)=>str.replaceAll("+","-").replaceAll("/","_"
  * @throws {Base64Exception} if b64 has any letter not in encode2val or equal sign not in trailing.
  * @returns {Uint8Array} represents an octet sequence.
  */
-export const decodeBase64=(b64str)=>{
+const decodeBase64=(b64str)=>{
   const noBlankNoPads=base64urlToBase64(b64str)
   .replaceAll(/\s/g,"")
   .replace(/=+$/,"");
@@ -75,7 +75,7 @@ export const decodeBase64=(b64str)=>{
  * @param arr {Uint8Array} represents a sequence of octets.
  * @returns {string} represents a base64 (not url-safe) string.
  */
-export const encodeBase64=(arr)=>{
+const encodeBase64=(arr)=>{
   const butNoPads=arr.reduce((result,x,i)=>{
     const L=result.length;
     switch(i%3){
@@ -105,4 +105,11 @@ export const encodeBase64=(arr)=>{
     case 3: return butNoPads+"=";
     default: throw new Error("Bug at encodeBase64(arr): padding not working: "+butNoPads)
   }
+}
+
+export {
+  base64urlToBase64,
+  base64ToBase64url,
+  decodeBase64,
+  encodeBase64,
 }

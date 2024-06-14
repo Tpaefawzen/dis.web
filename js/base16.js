@@ -18,7 +18,7 @@ const encode2value=[...value2encode].reduce((map,c,i)=>{
   return map;
 },new Map())
 
-export const decodeBase16=(b16str)=>{
+const decodeBase16=(b16str)=>{
   const{result}=[...b16str].filter(c=>
     c.match(/[0-9a-f]/i)
   ).map(c=>encode2value.get(c.toLowerCase()))
@@ -36,8 +36,13 @@ export const decodeBase16=(b16str)=>{
   return new Uint8Array(result);
 }
 
-export const encodeBase16=(u8int_array)=>{
+const encodeBase16=(u8int_array)=>{
   return u8int_array.reduce((b16str,n)=>{
     return `${b16str}${value2encode[(n&0xf0)>>4]}${value2encode[n&0x0f]}`;
   },"").toUpperCase();
 }
+
+export {
+  decodeBase16,
+  encodeBase16,
+};

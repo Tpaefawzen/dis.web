@@ -1,7 +1,7 @@
 /*
  * js/dis.js
  *
- * Copyright (C) 2022 Tpaefawzen
+ * Copyright (C) 2022, 2024 Tpaefawzen
  *
  * This file is part of dis.web.
  * 
@@ -12,41 +12,78 @@
  * You should have received a copy of the GNU Affero General Public License along with dis.web. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export const DisMath={
-  get BASE(){return 3;},
-  get DIGITS(){return 10;},
-  get MIN_VALUE(){return 0;},
-  get MAX_VALUE(){return DisMath.BASE**DisMath.DIGITS-1;},
-  
-  get isTenTrits(){return (x)=>
-    Number.isInteger(x)&&DisMath.MIN_VALUE<=x&&x<=DisMath.MAX_VALUE;
-  },
-  
-  get increment(){
-    const {isTenTrits,MAX_VALUE,MIN_VALUE}=DisMath;
-    return (x)=>isTenTrits(x)?(x+1)%(MAX_VALUE+1-MIN_VALUE):undefined;
-  },
-  get rotateRight(){
-    const {isTenTrits,BASE,DIGITS}=DisMath;
-    return function(x){
-      if(!isTenTrits(x)) return undefined;
-      return Math.floor(x/BASE)+x%BASE*(BASE**(DIGITS-1));
-    }
-  },
-  get subtract(){
-    const {isTenTrits,BASE,DIGITS}=DisMath;
-    return function(x,y){
-      if(!isTenTrits(x)||!isTenTrits(y)) return undefined;
-      return Array(DIGITS).fill([x,y]).map(([x,y],i)=>[
-        Math.floor(x/(BASE**i)%BASE),
-        Math.floor(y/(BASE**i)%BASE)
-      ]).map(([x,y],i)=>(BASE+x-y)%BASE*(BASE**i)
-      ).reduce((d1,d2)=>d1+d2);
-    }
-  },
-}; // const DisMath
+/**
+ * @file js/dis.js
+ * @description The Dis language implementation.
+ */
 
-export class DisArray extends Array{
+/**
+ * @factory DisMathFactory
+ * @optional @param base {int} @default 3
+ * @optional @param digits {int} @default 10
+ * @return @module DisMath
+ * @description Return a collection of functions that works for non-negative integers that can be represented in your base and digits.
+ */
+function DisMathFactory(base=3, digits=10) {
+  /**
+   * @module DisMath
+   * @description A collection of math functions for Dis language. OBTW every function in this module expects integers that satisfies `DisMath.isTenTrits(x)`.
+   */
+  const DisMath = {
+    /**
+     * @const DisMath.BASE, DisMath.DIGITS, DisMath.MIN_VALUE, DisMath.MAX_VALUE {int}
+     * @description Dis values.
+     */
+    get BASE(){ return base; },
+    get DIGITS(){ return digits; },
+    get MIN_VALUE() { return 0; },
+    get MAX_VALUE() { return DisMath.BASE ** DisMath.DIGITS - 1; },
+
+    /**
+     * @function DisMath.isTenTrits @param x {int}
+     * @description In ordinary Dis machine, it calculates if 0<=x and x<=59048.
+     * @return {bool} If true, it can be represented in your machine.
+     */
+    get isTenTrits() { return (x) =>
+      Number.isInteger(x) && DisMath.MIN_VALUE <= x && x <= DisMath.MAX_VALUE;
+    },
+    
+    /**
+     * @function DisMath.increment
+     * @param x {int}
+     * @optional @param y {int} @default 1
+     * @return {int}
+     * @description Increment your address.
+     */
+    get increment() {
+      const { isTenTrits, MAX_VALUE, MIN_VALUE } = DisMath;
+      return (x) => isTenTrits(x) ? (x+1) % (MAX_VALUE + 1 - MIN_VALUE) : undefined;
+    },
+
+
+    get rotateRight(){
+      const {isTenTrits,BASE,DIGITS}=DisMath;
+      return function(x){
+        if(!isTenTrits(x)) return undefined;
+        return Math.floor(x/BASE)+x%BASE*(BASE**(DIGITS-1));
+      }
+    },
+    get subtract(){
+      const {isTenTrits,BASE,DIGITS}=DisMath;
+      return function(x,y){
+        if(!isTenTrits(x)||!isTenTrits(y)) return undefined;
+        return Array(DIGITS).fill([x,y]).map(([x,y],i)=>[
+          Math.floor(x/(BASE**i)%BASE),
+          Math.floor(y/(BASE**i)%BASE)
+        ]).map(([x,y],i)=>(BASE+x-y)%BASE*(BASE**i)
+        ).reduce((d1,d2)=>d1+d2);
+      }
+    },
+  }; // const DisMath
+  return DisMath;
+} // function DisMathFactory;
+
+class DisArray extends Array{
   constructor(...items){
     const length=DisMath.MAX_VALUE+1;
     if(items.length>length){
@@ -79,7 +116,7 @@ const defineDisArrayItems=()=>{
 }; // const defineDisArrayItems
 defineDisArrayItems();
 
-export class Dis{
+class Dis{
   memory=Array(59049).fill(0);
   inputBuffer=[];
   outputBuffer=[];
@@ -198,3 +235,9 @@ export class Dis{
 } // class Dis
 
 // vim: set shiftwidth=2 softtabstop=2 expandtab:
+
+export {
+  DisMathFactory,
+  DisArray,
+  Dis,
+};
