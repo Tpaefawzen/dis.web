@@ -38,7 +38,7 @@ function DisMathFactory(base=3, digits=10) {
     get DIGITS(){ return digits; },
     get MIN_VALUE() { return 0; },
     get MAX_VALUE() { return DisMath.BASE ** DisMath.DIGITS - 1; },
-    get END_VALUE() { return DisMath.BASE ** DisMath.DIGITS; }
+    get END_VALUE() { return DisMath.BASE ** DisMath.DIGITS; },
 
     /**
      * @function DisMath.isTenTrits @param x {int}
@@ -226,6 +226,5 @@ class Dis{
 
 export {
   DisMathFactory,
-  DisArray,
   Dis,
 };
