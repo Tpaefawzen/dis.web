@@ -105,12 +105,36 @@ const DisMath = DisMathFactory();
  * @description Esoteric programming language Dis.
  */
 class Dis{
+  /**
+   * @member Dis.memory {Array[int]}
+   * @description Memory.
+   */
   memory=Array(59049).fill(0);
+
+  /**
+   * @member Dis.inputBuffer, outputBuffer {Array[int(0<=n and n<255)]}
+   * @description I/O.
+   */
   inputBuffer=[];
   outputBuffer=[];
+
+  /**
+   * @member Dis.halt {bool}
+   * @description The machine has halt.
+   */
   #halt=false;
   get halt(){return this.#halt;}
 
+  /**
+   * @member Dis.register_a {int}
+   * @description Accumulator.
+   *
+   * @member Dis.register_c {int}
+   * @description Program counter.
+   *
+   * @member Dis.register_d {int}
+   * @description Data pointer.
+   */
   #register_a=0;#register_c=0;#register_d=0;
   get register_a(){return this.#register_a||0;}
   get register_c(){return this.#register_c||0;}
@@ -133,7 +157,12 @@ class Dis{
     }
     this.#register_d=x;
   }
-  
+
+  /**
+   * @constructor Dis.constructor
+   * @param source {string} Program source.
+   * @description Compiler.
+   */
   constructor(source){
     const sSrc=String(source);
     const {memory,inComment}=[...sSrc].reduce(({memory,inComment,length},c)=>{
@@ -175,19 +204,49 @@ class Dis{
     }
 
     this.memory=memory.concat(this.memory).splice(0,59049);
+
+    this.#define_first_and_last_nonnop();
+  } // constructor
+
+  /**
+   * @method Dis.first_nonnop, Dis.last_nonnop {int}
+   * @description Range of where non-NOP commands (i.e. one of `!*>~{|}`) are in @member Dis.memory.
+   */
+  #first_nonnop = 59049;
+  #last_nonnop = 0;
+  get first_nonnop() { return this.#first_nonnop; }
+  get last_nonnop() { return this.#last_nonnop; }
+  
+  // HACK
+  // TODO: let @method step use this utility.
+  #list_nonnops = [33, 42, 62, 94, 123, 124, 125];
+  #define_first_and_last_nonnop() {
+    const { memory } = this;
+    this.#first_nonnop = memory.findIndex(x => this.#list_nonnops.includes(x));
+    this.#last_nonnop = memory.findLastIndex(x => this.#list_nonnops.includes(x));
+
+    if ( this.#first_nonnop < 0 && this.#last_nonnop < 0 ) {
+      // NOP
+    } else if ( this.#first_nonnop >= 0 && this.#last_nonnop >= 0 ) {
+      // YES
+    } else {
+      throw new Error(`Should not happen: this.#first_nonnop: ${this.#first_nonnop}, this.#last_nonnop: ${this.#last_nonnop}`);
+    }
   }
   
   /**
-   * @return {boolean} Can this machine run yet?
+   * @method Dis.step
+   * @return {boolean} Can this machine run yet?; i.e. `!Dis.halt`
+   * @description For compiled Dis machine, run a program for one step.
    */
-  step(){
-    if(this.halt){
+  step() {
+    if(this.halt) {
       return false;
     }
    
     const {memory,register_a,register_c,register_d}=this;
   
-    switch(memory[register_c]){
+    switch ( memory[register_c] ) {
     case 33:
       this.#halt=true;
       return false;
