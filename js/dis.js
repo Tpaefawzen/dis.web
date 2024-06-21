@@ -31,13 +31,14 @@ function DisMathFactory(base=3, digits=10) {
    */
   const DisMath = {
     /**
-     * @const DisMath.BASE, DisMath.DIGITS, DisMath.MIN_VALUE, DisMath.MAX_VALUE {int}
-     * @description Dis values.
+     * @const DisMath.BASE, DisMath.DIGITS, DisMath.MIN_VALUE, DisMath.MAX_VALUE, DisMath.END_VALUE {int}
+     * @description Dis constant values.
      */
     get BASE(){ return base; },
     get DIGITS(){ return digits; },
     get MIN_VALUE() { return 0; },
     get MAX_VALUE() { return DisMath.BASE ** DisMath.DIGITS - 1; },
+    get END_VALUE() { return DisMath.BASE ** DisMath.DIGITS; }
 
     /**
      * @function DisMath.isTenTrits @param x {int}
@@ -56,66 +57,53 @@ function DisMathFactory(base=3, digits=10) {
      * @description Increment your address.
      */
     get increment() {
-      const { isTenTrits, MAX_VALUE, MIN_VALUE } = DisMath;
-      return (x) => isTenTrits(x) ? (x+1) % (MAX_VALUE + 1 - MIN_VALUE) : undefined;
+      const { END_VALUE } = DisMath;
+      return (x, y=1) => (x+y) % END_VALUE;
     },
 
-
+    /**
+     * @function DisMath.rotateRight
+     * @param x {int}
+     * @optional @param y {int} @default 1
+     * @description Rotate your value for @param y times.
+     */
     get rotateRight(){
-      const {isTenTrits,BASE,DIGITS}=DisMath;
-      return function(x){
-        if(!isTenTrits(x)) return undefined;
-        return Math.floor(x/BASE)+x%BASE*(BASE**(DIGITS-1));
-      }
+      const { BASE, END_VALUE } = DisMath;
+      return (x, y=1) => Math.floor(x/BASE) + x%BASE * (END_VALUE/BASE);
     },
+
+    /**
+     * @function DisMath.subtract
+     * @param x, y {int}
+     * @description Subtraction without borrow in base of @const DisMath.BASE.
+     */
     get subtract(){
-      const {isTenTrits,BASE,DIGITS}=DisMath;
-      return function(x,y){
-        if(!isTenTrits(x)||!isTenTrits(y)) return undefined;
-        return Array(DIGITS).fill([x,y]).map(([x,y],i)=>[
-          Math.floor(x/(BASE**i)%BASE),
-          Math.floor(y/(BASE**i)%BASE)
-        ]).map(([x,y],i)=>(BASE+x-y)%BASE*(BASE**i)
-        ).reduce((d1,d2)=>d1+d2);
+      const { BASE } = DisMath;
+
+      function _op_by_digit(x, y) {
+        return ( x - y + BASE ) % BASE;
+      }
+
+      return function _subtract(x, y) {
+        if ( x < 1 && y < 1 ) return 0;
+        return _op_by_digit(x%BASE, y%BASE) + BASE*_subtract(Math.floor(x/BASE), Math.floor(y/BASE));
       }
     },
   }; // const DisMath
   return DisMath;
 } // function DisMathFactory;
 
-class DisArray extends Array{
-  constructor(...items){
-    const length=DisMath.MAX_VALUE+1;
-    if(items.length>length){
-      throw new RangeError(`too many items`);
-    }
-    super(length);
-    
-    items.forEach((x,i)=>{
-      this[i]=x;
-    });
-  } // constructor()
-} // class DisArray
 
-const defineDisArrayItems=()=>{
-  const length=DisMath.MAX_VALUE+1;
-  Array(length).fill(null).forEach((_,i)=>{
-    var privVal=0;
-    Object.defineProperty(DisArray.prototype,i,{
-      get(){
-        return privVal;
-      },
-      set(x){
-        if(!DisMath.isTenTrits(x)){
-          throw new RangeError(`not ten-trit value: ${x}`);
-        }
-        privVal=x;
-      }
-    });
-  }); // forEach((_,i)=>{...})
-}; // const defineDisArrayItems
-defineDisArrayItems();
+/**
+ * @local @const DisMath
+ * @description For local @class Dis.
+ */
+const DisMath = DisMathFactory();
 
+/**
+ * @class Dis
+ * @description Esoteric programming language Dis.
+ */
 class Dis{
   memory=Array(59049).fill(0);
   inputBuffer=[];
