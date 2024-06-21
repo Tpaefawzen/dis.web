@@ -20,7 +20,7 @@
 
 index.html
 
-Copyright (C) 2022, 2023 Tpaefawzen
+Copyright (C) 2022, 2023, 2024 Tpaefawzen
 
 This file is part of dis.web.
 
@@ -46,19 +46,20 @@ You should have received a copy of the GNU Affero General Public License along w
 
 <div class="source area">
 	<label for="source">Program source (<span id="source-length">0</span>)</label>
-	<textarea id="source"></textarea>
+	<textarea id="source" placeholder="Program (e.g. }{)"></textarea>
 </div> <!-- class="source area" -->
 	
 <div class="input area">
+	<label for="input">Input for program (<span id="input-length">0</span>)</label>
+
 	<label for="input-enc">Encoding of input</label>
 	<select id="input-enc">
 		<option value="utf-8">UTF-8
 		<option value="base64">Base64
 		<option value="base16">Base16
 	</select>
-	
-	<label for="input">Input for program (<span id="input-length">0</span>)</label>
-	<textarea id="input"></textarea>
+
+	<textarea id="input" placeholder="Input"></textarea>
 	
 </div> <!-- class="input area" -->
 
@@ -81,17 +82,16 @@ You should have received a copy of the GNU Affero General Public License along w
 	</select>
 	
 	<label for="output">Program output (<span id="output-length">0</span>)</label>
-	<textarea id="output"></textarea>
-
 	<button type="button" id="clear-output">Clear output</button>
+	<textarea id="output" placeholder="Output"></textarea>
 	
 	<label for="stderr">Program stderr</label>
-	<textarea id="stderr"></textarea>
+	<textarea id="stderr" placeholder="Standard error"></textarea>
 </div> <!-- class="output area" -->
 
 <footer>
 <small>
-<p>Copyright (C) 2022, 2023 <a href="https://github.com/Tpaefawzen">Tpaefawzen</a>
+<p>Copyright (C) 2022, 2023, 2024 <a href="https://github.com/Tpaefawzen">Tpaefawzen</a>
 <p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 <p>You should have received a copy of the GNU Affero General Public License along with this program. If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.
