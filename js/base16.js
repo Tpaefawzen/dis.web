@@ -1,7 +1,7 @@
 /*
  * js/base16.js
  *
- * Copyright (C) 2022 Tpaefawzen
+ * Copyright (C) 2022, 2024 Tpaefawzen
  *
  * This file is part of dis.web.
  * 
@@ -37,9 +37,9 @@ const decodeBase16=(b16str)=>{
 }
 
 const encodeBase16=(u8int_array)=>{
-  return u8int_array.reduce((b16str,n)=>{
-    return `${b16str}${value2encode[(n&0xf0)>>4]}${value2encode[n&0x0f]}`;
-  },"").toUpperCase();
+  return u8int_array.reduce((b16str,n)=>(
+    `${b16str}${value2encode[(n&0xf0)>>4]}${value2encode[n&0x0f]}`
+  ),"").toUpperCase();
 }
 
 export {
