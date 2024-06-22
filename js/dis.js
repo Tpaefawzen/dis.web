@@ -1,7 +1,7 @@
 /*
  * js/dis.js
  *
- * Copyright (C) 2022 Tpaefawzen
+ * Copyright (C) 2022, 2024 Tpaefawzen
  *
  * This file is part of dis.web.
  * 
@@ -12,80 +12,129 @@
  * You should have received a copy of the GNU Affero General Public License along with dis.web. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export const DisMath={
-  get BASE(){return 3;},
-  get DIGITS(){return 10;},
-  get MIN_VALUE(){return 0;},
-  get MAX_VALUE(){return DisMath.BASE**DisMath.DIGITS-1;},
-  
-  get isTenTrits(){return (x)=>
-    Number.isInteger(x)&&DisMath.MIN_VALUE<=x&&x<=DisMath.MAX_VALUE;
-  },
-  
-  get increment(){
-    const {isTenTrits,MAX_VALUE,MIN_VALUE}=DisMath;
-    return (x)=>isTenTrits(x)?(x+1)%(MAX_VALUE+1-MIN_VALUE):undefined;
-  },
-  get rotateRight(){
-    const {isTenTrits,BASE,DIGITS}=DisMath;
-    return function(x){
-      if(!isTenTrits(x)) return undefined;
-      return Math.floor(x/BASE)+x%BASE*(BASE**(DIGITS-1));
-    }
-  },
-  get subtract(){
-    const {isTenTrits,BASE,DIGITS}=DisMath;
-    return function(x,y){
-      if(!isTenTrits(x)||!isTenTrits(y)) return undefined;
-      return Array(DIGITS).fill([x,y]).map(([x,y],i)=>[
-        Math.floor(x/(BASE**i)%BASE),
-        Math.floor(y/(BASE**i)%BASE)
-      ]).map(([x,y],i)=>(BASE+x-y)%BASE*(BASE**i)
-      ).reduce((d1,d2)=>d1+d2);
-    }
-  },
-}; // const DisMath
+/**
+ * @file js/dis.js
+ * @description The Dis language implementation.
+ */
 
-export class DisArray extends Array{
-  constructor(...items){
-    const length=DisMath.MAX_VALUE+1;
-    if(items.length>length){
-      throw new RangeError(`too many items`);
-    }
-    super(length);
+/**
+ * @factory DisMathFactory
+ * @optional @param base {int} @default 3
+ * @optional @param digits {int} @default 10
+ * @return @module DisMath
+ * @description Return a collection of functions that works for non-negative integers that can be represented in your base and digits.
+ */
+function DisMathFactory(base=3, digits=10) {
+  /**
+   * @module DisMath
+   * @description A collection of math functions for Dis language. OBTW every function in this module expects integers that satisfies `DisMath.isTenTrits(x)`.
+   */
+  const DisMath = {
+    /**
+     * @const DisMath.BASE, DisMath.DIGITS, DisMath.MIN_VALUE, DisMath.MAX_VALUE, DisMath.END_VALUE {int}
+     * @description Dis constant values.
+     */
+    get BASE(){ return base; },
+    get DIGITS(){ return digits; },
+    get MIN_VALUE() { return 0; },
+    get MAX_VALUE() { return DisMath.BASE ** DisMath.DIGITS - 1; },
+    get END_VALUE() { return DisMath.BASE ** DisMath.DIGITS; },
+
+    /**
+     * @function DisMath.isTenTrits @param x {int}
+     * @description In ordinary Dis machine, it calculates if 0<=x and x<=59048.
+     * @return {bool} If true, it can be represented in your machine.
+     */
+    get isTenTrits() { return (x) =>
+      Number.isInteger(x) && DisMath.MIN_VALUE <= x && x <= DisMath.MAX_VALUE;
+    },
     
-    items.forEach((x,i)=>{
-      this[i]=x;
-    });
-  } // constructor()
-} // class DisArray
+    /**
+     * @function DisMath.increment
+     * @param x {int}
+     * @optional @param y {int} @default 1
+     * @return {int}
+     * @description Increment your address.
+     */
+    get increment() {
+      const { END_VALUE } = DisMath;
+      return (x, y=1) => (x+y) % END_VALUE;
+    },
 
-const defineDisArrayItems=()=>{
-  const length=DisMath.MAX_VALUE+1;
-  Array(length).fill(null).forEach((_,i)=>{
-    var privVal=0;
-    Object.defineProperty(DisArray.prototype,i,{
-      get(){
-        return privVal;
-      },
-      set(x){
-        if(!DisMath.isTenTrits(x)){
-          throw new RangeError(`not ten-trit value: ${x}`);
-        }
-        privVal=x;
+    /**
+     * @function DisMath.rotateRight
+     * @param x {int}
+     * @optional @param y {int} @default 1
+     * @description Rotate your value for @param y times.
+     */
+    get rotateRight(){
+      const { BASE, END_VALUE } = DisMath;
+      return (x, y=1) => Math.floor(x/BASE) + x%BASE * (END_VALUE/BASE);
+    },
+
+    /**
+     * @function DisMath.subtract
+     * @param x, y {int}
+     * @description Subtraction without borrow in base of @const DisMath.BASE.
+     */
+    get subtract(){
+      const { BASE } = DisMath;
+
+      function _op_by_digit(x, y) {
+        return ( x - y + BASE ) % BASE;
       }
-    });
-  }); // forEach((_,i)=>{...})
-}; // const defineDisArrayItems
-defineDisArrayItems();
 
-export class Dis{
+      return function _subtract(x, y) {
+        if ( x < 1 && y < 1 ) return 0;
+        return _op_by_digit(x%BASE, y%BASE) + BASE*_subtract(Math.floor(x/BASE), Math.floor(y/BASE));
+      }
+    },
+  }; // const DisMath
+  return DisMath;
+} // function DisMathFactory;
+
+
+/**
+ * @local @const DisMath
+ * @description For local @class Dis.
+ */
+const DisMath = DisMathFactory();
+
+/**
+ * @class Dis
+ * @description Esoteric programming language Dis.
+ */
+class Dis{
+  /**
+   * @member Dis.memory {Array[int]}
+   * @description Memory.
+   */
   memory=Array(59049).fill(0);
+
+  /**
+   * @member Dis.inputBuffer, outputBuffer {Array[int(0<=n and n<255)]}
+   * @description I/O.
+   */
   inputBuffer=[];
   outputBuffer=[];
+
+  /**
+   * @member Dis.halt {bool}
+   * @description The machine has halt.
+   */
   #halt=false;
   get halt(){return this.#halt;}
 
+  /**
+   * @member Dis.register_a {int}
+   * @description Accumulator.
+   *
+   * @member Dis.register_c {int}
+   * @description Program counter.
+   *
+   * @member Dis.register_d {int}
+   * @description Data pointer.
+   */
   #register_a=0;#register_c=0;#register_d=0;
   get register_a(){return this.#register_a||0;}
   get register_c(){return this.#register_c||0;}
@@ -108,7 +157,12 @@ export class Dis{
     }
     this.#register_d=x;
   }
-  
+
+  /**
+   * @constructor Dis.constructor
+   * @param source {string} Program source.
+   * @description Compiler.
+   */
   constructor(source){
     const sSrc=String(source);
     const {memory,inComment}=[...sSrc].reduce(({memory,inComment,length},c)=>{
@@ -150,19 +204,49 @@ export class Dis{
     }
 
     this.memory=memory.concat(this.memory).splice(0,59049);
+
+    this.#define_first_and_last_nonnop();
+  } // constructor
+
+  /**
+   * @method Dis.first_nonnop, Dis.last_nonnop {int}
+   * @description Range of where non-NOP commands (i.e. one of `!*>~{|}`) are in @member Dis.memory.
+   */
+  #first_nonnop = 59049;
+  #last_nonnop = 0;
+  get first_nonnop() { return this.#first_nonnop; }
+  get last_nonnop() { return this.#last_nonnop; }
+  
+  // HACK
+  // TODO: let @method step use this utility.
+  #list_nonnops = [33, 42, 62, 94, 123, 124, 125];
+  #define_first_and_last_nonnop() {
+    const { memory } = this;
+    this.#first_nonnop = memory.findIndex(x => this.#list_nonnops.includes(x));
+    this.#last_nonnop = memory.findLastIndex(x => this.#list_nonnops.includes(x));
+
+    if ( this.#first_nonnop < 0 && this.#last_nonnop < 0 ) {
+      // NOP
+    } else if ( this.#first_nonnop >= 0 && this.#last_nonnop >= 0 ) {
+      // YES
+    } else {
+      throw new Error(`Should not happen: this.#first_nonnop: ${this.#first_nonnop}, this.#last_nonnop: ${this.#last_nonnop}`);
+    }
   }
   
   /**
-   * @return {boolean} Can this machine run yet?
+   * @method Dis.step
+   * @return {boolean} Can this machine run yet?; i.e. `!Dis.halt`
+   * @description For compiled Dis machine, run a program for one step.
    */
-  step(){
-    if(this.halt){
+  step() {
+    if(this.halt) {
       return false;
     }
    
     const {memory,register_a,register_c,register_d}=this;
   
-    switch(memory[register_c]){
+    switch ( memory[register_c] ) {
     case 33:
       this.#halt=true;
       return false;
@@ -198,3 +282,8 @@ export class Dis{
 } // class Dis
 
 // vim: set shiftwidth=2 softtabstop=2 expandtab:
+
+export {
+  DisMathFactory,
+  Dis,
+};
